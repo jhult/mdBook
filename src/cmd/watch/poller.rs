@@ -161,6 +161,10 @@ impl Watcher {
                     .follow_links(true)
                     .into_iter()
                     .filter_entry(|entry| {
+                        // Always ignore .git directory
+                        if entry.path().components().any(|c| c.as_os_str() == ".git") {
+                            return false;
+                        }
                         if let Some((ignore_path, ignore)) = ignore {
                             let path = entry.path();
                             // Canonicalization helps with removing `..` and
