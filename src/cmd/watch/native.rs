@@ -138,6 +138,10 @@ fn filter_ignored_files(ignore: Gitignore, paths: &[PathBuf]) -> Vec<PathBuf> {
     paths
         .iter()
         .filter(|path| {
+            // Always ignore .git directory
+            if path.components().any(|c| c.as_os_str() == ".git") {
+                return false;
+            }
             let relative_path = pathdiff::diff_paths(&path, &ignore_root)
                 .expect("One of the paths should be an absolute");
             !ignore
@@ -183,6 +187,18 @@ mod tests {
         let parent_dir = current_dir.join("..");
         let should_remain = parent_dir.join("record.text");
         let should_filter = parent_dir.join("index.html");
+
+        let remain = filter_ignored_files(ignore, &[should_remain.clone(), should_filter]);
+        assert_eq!(remain, vec![should_remain])
+    }
+
+    #[test]
+    fn test_filter_ignored_git_directory() {
+        let current_dir = env::current_dir().unwrap();
+
+        let ignore = GitignoreBuilder::new(&current_dir).build().unwrap();
+        let should_remain = current_dir.join("src/chapter.md");
+        let should_filter = current_dir.join(".git/refs/heads/master");
 
         let remain = filter_ignored_files(ignore, &[should_remain.clone(), should_filter]);
         assert_eq!(remain, vec![should_remain])
