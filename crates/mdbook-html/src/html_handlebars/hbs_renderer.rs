@@ -556,6 +556,8 @@ impl Renderer for HtmlHandlebars {
         builder.add_line(None, ".mdbookignore")?;
         builder.add_line(None, ".gitignore")?;
         builder.add_line(None, ".git/")?;
+        builder.add_line(None, "book.toml")?;
+        builder.add_line(None, "theme/")?;
         builder.add_line(None, "*.md")?;
 
         let mdbook_ignore = src_dir.join(".mdbookignore");
