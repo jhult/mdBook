@@ -551,13 +551,19 @@ impl Renderer for HtmlHandlebars {
 
         // Copy all remaining files, avoid a recursive copy from/to the book build dir
         let mut builder = GitignoreBuilder::new(&src_dir);
+
+        // Add default ignores
+        builder.add_line(None, ".mdbookignore")?;
+        builder.add_line(None, ".gitignore")?;
+        builder.add_line(None, ".git/")?;
+        builder.add_line(None, "*.md")?;
+
         let mdbook_ignore = src_dir.join(".mdbookignore");
         if mdbook_ignore.exists() {
             if let Some(err) = builder.add(mdbook_ignore) {
                 warn!("Unable to load '.mdbookignore' file: {}", err);
             }
         }
-        builder.add_line(None, "*.md")?;
         let ignore = builder.build()?;
 
         fs::copy_files_except_ignored(

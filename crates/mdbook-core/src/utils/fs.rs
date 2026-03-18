@@ -151,8 +151,9 @@ pub fn copy_files_except_ignored(
             }
 
             if let Some(ignore) = ignore {
-                let path = entry.as_path();
-                if ignore.matched(path, true).is_ignore() {
+                let relative_path = pathdiff::diff_paths(&entry, from)
+                    .unwrap_or_else(|| entry.to_path_buf());
+                if ignore.matched(&relative_path, true).is_ignore() {
                     continue;
                 }
             }
@@ -165,8 +166,9 @@ pub fn copy_files_except_ignored(
             copy_files_except_ignored(&entry, &target_file_path, true, avoid_dir, ignore)?;
         } else if metadata.is_file() {
             if let Some(ignore) = ignore {
-                let path = entry.as_path();
-                if ignore.matched(path, false).is_ignore() {
+                let relative_path = pathdiff::diff_paths(&entry, from)
+                    .unwrap_or_else(|| entry.to_path_buf());
+                if ignore.matched(&relative_path, false).is_ignore() {
                     continue;
                 }
             }
